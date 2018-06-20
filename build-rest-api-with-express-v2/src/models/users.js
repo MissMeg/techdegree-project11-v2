@@ -48,6 +48,7 @@ UserSchema.statics.authenticate = (email, password, callback) => {
       });
 };
 
+
 //hash Password
 UserSchema.pre('save',  function(next) {
   let user = this;
