@@ -8,8 +8,9 @@ const {Review}    = require('./models/reviews');
 const {Course}    = require('./models/courses');
 const {authUser}  = require('./auth');
 
-
+//////////////////////////////////////////////////////////////
 //////////////////////USER PATHS//////////////////////////////
+//////////////////////////////////////////////////////////////
 
 router.get('/users', authUser, (req, res) => {
   res.json(req.authUser);
@@ -41,6 +42,79 @@ router.post('/users', (req, res, next) => {
           }
         }
       });
+});
+
+//////////////////////////////////////////////////////////////
+//////////////////////COURSE PATHS////////////////////////////
+//////////////////////////////////////////////////////////////
+
+router.get('/courses', (req, res, next) => {
+  Course.find({}, '_id title', (err, courses) => {
+    if (err) {
+      err.status = 400;
+      return next(err);
+    }
+    res.status(200);
+    res.json(courses);
+  });
+});
+
+router.get('/courses/:id', (req, res, next) => {
+  Course.findById(req.params.id)
+        .populate({ path: 'user', select: 'fullName'})
+        .populate({ path: 'reviews', populate: {path: 'user', model: 'User', select: 'fullName'} })
+        .exec( (err, course) => {
+          if (err) {
+            err.status = 400;
+            return next(err);
+          }
+          res.status(200);
+          res.json(course);
+        });
+});
+
+router.post('/courses', authUser, (req, res, next) => {
+  Course.create(req.body, (err) => {
+    if (err) {
+      err.status = 400;
+      return next(err);
+    }
+    res.location('/');
+    res.status(201).json();
+  });
+});
+
+router.put('/courses/:id', authUser, (req, res, next) => {
+  Course.findByIdAndUpdate(req.params.id, req.body, (err) => {
+    if (err) {
+      err.status = 400;
+      return next(err);
+    }
+    res.body = req.body;
+    res.status(204).json();
+  });
+});
+
+//////////////////////////////////////////////////////////////
+//////////////////////REVIEW PATHS////////////////////////////
+//////////////////////////////////////////////////////////////
+
+router.post('/courses/:id/reviews', authUser, (req, res, next) => {
+  Review.create(req.body, (err, review) => {
+    if (err) {
+      err.status = 400;
+      return next(err);
+    }
+    Course.findByIdAndUpdate(req.params.id, {$push: { reviews: review._id}})
+          .populate('user')
+          .exec( (err, course) => {
+            if (err) {
+              return next(err);
+            }
+            res.location('/courses/:id');
+            res.status(201).json();
+          });
+  });
 });
 
 module.exports = router;

@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
 
 //authenticate input against Database
 UserSchema.statics.authenticate = (email, password, callback) => {
-  User.findOne({email: email})
+  User.findOne({emailAddress: email})
       .exec((err, user) => {
         if (err) return callback(err);
         if (!user) {
@@ -48,7 +48,6 @@ UserSchema.statics.authenticate = (email, password, callback) => {
       });
 };
 
-
 //hash Password
 UserSchema.pre('save',  function(next) {
   let user = this;
@@ -60,7 +59,7 @@ UserSchema.pre('save',  function(next) {
         user.password = hash;
         next();
       });
-    });
+    })
   } else {
     next();
   }
