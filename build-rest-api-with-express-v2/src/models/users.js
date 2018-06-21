@@ -3,6 +3,7 @@
 const mongoose  = require('mongoose');
 const bcrypt    = require('bcrypt');
 
+//create user schema
 const UserSchema = new mongoose.Schema({
     fullName: {
         type: String,
@@ -30,6 +31,7 @@ const UserSchema = new mongoose.Schema({
 
 //authenticate input against Database
 UserSchema.statics.authenticate = (email, password, callback) => {
+  //fiind user
   User.findOne({emailAddress: email})
       .exec((err, user) => {
         if (err) return callback(err);
@@ -38,6 +40,7 @@ UserSchema.statics.authenticate = (email, password, callback) => {
           err.status = 401;
           return callback(err);
         }
+        //compare passwords
         bcrypt.compare(password, user.password, (err, result) => {
           if (result === true) {
             return callback(null, user);

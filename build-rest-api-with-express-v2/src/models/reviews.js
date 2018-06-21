@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 
+//review model
 const Review = mongoose.model('Review', {
     user: {
         type: mongoose.Schema.Types.ObjectId,

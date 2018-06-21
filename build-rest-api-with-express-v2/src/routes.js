@@ -12,11 +12,14 @@ const {authUser}  = require('./auth');
 //////////////////////USER PATHS//////////////////////////////
 //////////////////////////////////////////////////////////////
 
+
+//get currently logged in user
 router.get('/users', authUser, (req, res) => {
   res.json(req.authUser);
   res.status(200);
 });
 
+//create new user
 router.post('/users', (req, res, next) => {
   User.findOne({emailAddress: req.body.emailAddress})
       .exec((err, user) => {
@@ -48,6 +51,7 @@ router.post('/users', (req, res, next) => {
 //////////////////////COURSE PATHS////////////////////////////
 //////////////////////////////////////////////////////////////
 
+//get all course ids and titles
 router.get('/courses', (req, res, next) => {
   Course.find({}, '_id title', (err, courses) => {
     if (err) {
@@ -59,6 +63,7 @@ router.get('/courses', (req, res, next) => {
   });
 });
 
+//get all info on a specific course
 router.get('/courses/:id', (req, res, next) => {
   Course.findById(req.params.id)
         .populate({ path: 'user', select: 'fullName'})
@@ -73,6 +78,7 @@ router.get('/courses/:id', (req, res, next) => {
         });
 });
 
+//create a new course
 router.post('/courses', authUser, (req, res, next) => {
   Course.create(req.body, (err) => {
     if (err) {
@@ -84,6 +90,7 @@ router.post('/courses', authUser, (req, res, next) => {
   });
 });
 
+//update a course
 router.put('/courses/:id', authUser, (req, res, next) => {
   Course.findByIdAndUpdate(req.params.id, req.body, (err) => {
     if (err) {
@@ -99,6 +106,7 @@ router.put('/courses/:id', authUser, (req, res, next) => {
 //////////////////////REVIEW PATHS////////////////////////////
 //////////////////////////////////////////////////////////////
 
+//create a new review
 router.post('/courses/:id/reviews', authUser, (req, res, next) => {
   Review.create(req.body, (err, review) => {
     if (err) {
